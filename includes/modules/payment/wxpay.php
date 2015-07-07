@@ -2,6 +2,10 @@
 /**
  * Filename: wxpay.php  
  *
+ * @abstract Copyright(c) 2015-20180by 王光涛 All rights reserved
+ *          
+ *  To contact the author write to {@link mail to:wangguangtao@letvpicture.com}
+ *
  *
  */
 if (! defined ( 'IN_ECS' )) {
@@ -103,6 +107,7 @@ class WxPayConf_pub {
 	 */
 }
 
+include_once (ROOT_PATH . "wxpay/WxPay.pub.config.php"); //支付信息配置文件。
 include_once (ROOT_PATH . "wxpay/WxPayPubHelper.php");
 
 /**
@@ -125,8 +130,8 @@ class wxpay {
 			$this->wxpay_mchid = $payment ['wxpay_mchid'];
 			$this->wxpay_key = $payment ['wxpay_key'];
 			$this->wxpay_paySignKey = $payment ['wxpay_paySignKey'];
-			$this->background_notify_url = $payment ['notifyurl'];
-			$this->pay_success_url = $payment ['successurl'];
+			$this->background_notify_url = 'http://'.$_SERVER["HTTP_HOST"].'/respond.php';
+			$this->pay_success_url = 'http://'.$_SERVER["HTTP_HOST"].'/respond.php';
 		}
 	}
 	
@@ -144,20 +149,19 @@ class wxpay {
 		//微信浏览器的JSAPI支付\
 		if (strpos ( $_SERVER ['HTTP_USER_AGENT'], "MicroMessenger" )) 
 		{
-			$tools = new JsApiPay();
-			//$openid = $tools->GetOpenid();
-			//@$openid = $_COOKIE ['sopenid'];
-			$openid='oKIVft4Hk9gNczpAyszvsIYeGklU';//测试
-			//var_dump($openId);die();
+			$tools = new JsApi_pub();
+			$openid = $tools->GetOpenid();
 			$unifiedOrder = new UnifiedOrder_pub ();
-			$returnrul = $conf->successurl . $order ["order_id"];
+			$returnrul = $conf->successurl;
+			$unifiedOrder->setParameter ( "appid", "$openid" ); // appid
 			$unifiedOrder->setParameter ( "openid", "$openid" ); // openid
 			$unifiedOrder->setParameter ( "body", $order ['order_sn'] ); // 商品描述
 			$timeStamp = time ();
 			// $out_trade_no = WxPayConf_pub::APPID."$timeStamp";
 			$unifiedOrder->setParameter ( "out_trade_no", $order ['order_sn'] ); // 商户订单号
 			$unifiedOrder->setParameter ( "total_fee", intval ( $order ['order_amount'] * 100 ) ); // 总金额
-			$unifiedOrder->setParameter ( "notify_url", $conf->notifyurl ); // 通知地址
+			$unifiedOrder->setParameter ( "spbill_create_ip", $_SERVER['REMOTE_ADDR'] ); 
+			$unifiedOrder->setParameter ( "notify_url", 'http://'.$_SERVER["HTTP_HOST"].'/respond.php' ); // 通知地址
 			$unifiedOrder->setParameter ( "trade_type", "JSAPI" ); // 交易类型
 			// 非必填参数，商户可根据实际情况选填
 			// $unifiedOrder->setParameter("sub_mch_id","XXXX");//子商户号
@@ -169,6 +173,7 @@ class wxpay {
 			// $unifiedOrder->setParameter("openid","XXXX");//用户标识
 			// $unifiedOrder->setParameter("product_id","XXXX");//商品ID
 			$prepay_id = $unifiedOrder->getPrepayId ();
+			//var_dump($prepay_id);
 			$jsApi = new JsApi_pub ();
 			$jsApi->setPrepayId ( $prepay_id );
 			$jsApiParameters = $jsApi->getParameters ();
@@ -179,6 +184,7 @@ class wxpay {
 		else 
 		{
 			$native = new NativeLink_pub();
+			//var_dump($order);die();
 			$native->setParameter ( "body", $order ['order_sn'] ); // 商品描述
 			$timeStamp = time ();
 			// $out_trade_no = WxPayConf_pub::APPID."$timeStamp";

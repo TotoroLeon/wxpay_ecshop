@@ -311,11 +311,11 @@ class Wxpay_client_pub extends Common_util_pub
 	function postXml()
 	{
 	    $xml = $this->createXml();	
-		
+		//var_dump($xml);die();
 		//$this->log_d($xml);
 				
 		$this->response = $this->postXmlCurl($xml,$this->url,$this->curl_timeout);
-		//var_dump($this->response);
+		//var_dump($this->response);die();
 		//exit;
 		return $this->response;
 	}
@@ -400,7 +400,7 @@ class UnifiedOrder_pub extends Wxpay_client_pub
 	{
 		$this->postXml();				
 		$this->result = $this->xmlToArray($this->response);
-		//var_dump($this->result);
+		//var_dump($this->result);die();
 		@$prepay_id = $this->result["prepay_id"];
 		return $prepay_id;
 	}
@@ -858,24 +858,32 @@ class JsApi_pub extends Common_util_pub
 	 */
 	function getOpenid()
 	{
-		$url = $this->createOauthUrlForOpenid();	
-			
-			
-			//ob_start();
-	$ch = curl_init();
-	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); //ssl证书不检验
-	curl_setopt($ch, CURLOPT_URL, $url);
-	//curl_setopt($ch, CURLOPT_USERAGENT,$this->useragent());
-	curl_setopt($ch, CURLOPT_RETURNTRANSFER,1); 
-	curl_setopt($ch, CURLOPT_CONNECTTIMEOUT,$this->curl_timeout);
-	$res = curl_exec($ch);
-	curl_close($ch);
-			
-			
+	    
+	    if (!isset($_GET['code']))
+	    {
+    	    $baseUrl = urlencode('http://'.$_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF'].'?'.$_SERVER['QUERY_STRING']);
+    		$url = $this->createOauthUrlForCode($baseUrl);
+    		Header("Location: $url");
+	    }
+	    else
+	    {
+	        $this->setCode($_GET['code']);
+	        //获取code码，以获取openid
+	        $url  = $this->createOauthUrlForOpenid();
+            //ob_start();
+        	$ch = curl_init();
+        	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); //ssl证书不检验
+        	curl_setopt($ch, CURLOPT_URL, $url);
+        	//curl_setopt($ch, CURLOPT_USERAGENT,$this->useragent());
+        	curl_setopt($ch, CURLOPT_RETURNTRANSFER,1); 
+        	curl_setopt($ch, CURLOPT_CONNECTTIMEOUT,$this->curl_timeout);
+        	$res = curl_exec($ch);
+        	curl_close($ch);
+        	$data = json_decode($res,true);
+        	$this->openid = $data['openid'];
+        	return $this->openid;
+	    }
 		
-		$data = json_decode($res,true);
-		$this->openid = $data['openid'];
-		return $this->openid;
 	}
 
 	/**
@@ -912,45 +920,40 @@ class JsApi_pub extends Common_util_pub
 	}
 	
 	public function getbutton($code,$returnrul){
-		$button = <<<EOT
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<title>微信支付</title>
-</head>
-<body>
-<script type="text/javascript">
+		$button = 
+'<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">'
+.'<html xmlns="http://www.w3.org/1999/xhtml">'
+.'<head>'
+.'<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />'
+.'<title>微信支付</title>'
+.'</head>'
+.'<body>'
+.'<script type="text/javascript">'
+.'	function jsApiCall(){'
+.'		WeixinJSBridge.invoke("getBrandWCPayRequest",'. $code.','
+.'		function(res){'
+.'			WeixinJSBridge.log(res.err_msg);'
+.'			alert(res.err_code+res.err_desc+res.err_msg);'
+.'		});'
+.'	}'
+.'	function callpay()'
+.'	{'
+.'		if (typeof WeixinJSBridge == "undefined"){'
+.'		    if( document.addEventListener ){'
+.'		        document.addEventListener("WeixinJSBridgeReady", jsApiCall, false);'
+.'		    }else if (document.attachEvent){'
+.'		        document.attachEvent("WeixinJSBridgeReady", jsApiCall); '
+.'		        document.attachEvent("onWeixinJSBridgeReady", jsApiCall);'
+.'		    }'
+.'		}else{'
+.'		    jsApiCall();'
+.'		}'
+.'	}'
+.'</script>'
+.'<div style="text-align:center"><input type="button" onclick="callpay()" value="立即使用微信支付" /></div>'
+.'</body>'
+.'</html>';
 
-		//调用微信JS api 支付
-		function jsApiCall(){
-			WeixinJSBridge.invoke('getBrandWCPayRequest',{$code},function(res){
-					WeixinJSBridge.log(res.err_msg);
-					//alert(res.err_code+'调试信息：'+res.err_desc+res.err_msg);
-					if(res.err_msg.indexOf('ok')>0){
-						window.location.href='{$returnrul}';
-					}
-				});
-		}
-
-		function callpay()
-		{
-			if (typeof WeixinJSBridge == "undefined"){
-			    if( document.addEventListener ){
-			        document.addEventListener('WeixinJSBridgeReady', jsApiCall, false);
-			    }else if (document.attachEvent){
-			        document.attachEvent('WeixinJSBridgeReady', jsApiCall); 
-			        document.attachEvent('onWeixinJSBridgeReady', jsApiCall);
-			    }
-			}else{
-			    jsApiCall();
-			}
-		}
-	</script>
-<div style="text-align:center"><input type="button" onclick="callpay()" value="立即使用微信支付" /></div>
-</body>
-</html>
-EOT;
         return $button;
 	}
 }
