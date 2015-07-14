@@ -1,17 +1,16 @@
-ecshopµÄÎ¢ÐÅÖ§¸¶²å¼þ
-°üº¬£º
+ecshopçš„å¾®ä¿¡æ”¯ä»˜æ’ä»¶
+åŒ…å«ï¼š
 
-	JSAPI£¨Î¢ÐÅÖ§¸¶£©
-	NATIVE£¨É¨ÂëÖ§¸¶£©
-°²×°£º
-	¸²¸Çµ½ÍøÕ¾¸ùÄ¿Â¼¡£ ×¢Òâ±¸·ÝÔ­À´µÄÍøÕ¾
+	JSAPIï¼ˆå¾®ä¿¡æ”¯ä»˜ï¼‰
+	NATIVEï¼ˆæ‰«ç æ”¯ä»˜ï¼‰
+å®‰è£…ï¼š
+	è¦†ç›–åˆ°ç½‘ç«™æ ¹ç›®å½•ã€‚ æ³¨æ„å¤‡ä»½åŽŸæ¥çš„ç½‘ç«™
 
-ÅäÖÃ£º
-	ºóÌ¨¿ªÆôÎ¢ÐÅÖ§¸¶¹¦ÄÜ£¬ÌîÈëÏàÓ¦µÄ²ÎÊý appi £¬ mchid , key, appsecret,Ö§¸¶Í¨Öªurl£¬Ö§¸¶³É¹¦Ìø×ªurl
+é…ç½®ï¼š
+	åŽå°å¼€å¯å¾®ä¿¡æ”¯ä»˜åŠŸèƒ½ï¼Œå¡«å…¥ç›¸åº”çš„å‚æ•° appi ï¼Œ mchid , key, appsecret,æ”¯ä»˜é€šçŸ¥urlï¼Œæ”¯ä»˜æˆåŠŸè·³è½¬url
 
-ËµÃ÷£º
+è¯´æ˜Žï¼š
+	éœ€è¦åœ¨å…¬ä¼—å·åŽå°æ·»åŠ æ”¯ä»˜äººå‘˜æµ‹è¯•ç™½åå•ã€‚
+	æ»¡è¶³ä»¥ä¸Šä¸¤ä¸ªæ¡ä»¶æ‰å¯ä»¥å‘èµ·æ”¯ä»˜ï¼Œæ”¯ä»˜æˆåŠŸåŽwxpay\demo\notify_url.php ä¼šæŽ¥å—åˆ°é€šçŸ¥ï¼Œå¹¶æ”¹å˜è®¢å•çŠ¶æ€ã€‚ã€‚
 
-	ÆäÖÐ mobile\includes ÎÄ¼þ¼ÐÏÂµÄinit.phpÎÄ¼þÊÇÎªÁË»ñÈ¡µ½Î¢ÐÅÓÃ»§openid£¬Èç¹ûÄãÒÑ¾­»ñÈ¡µ½openid¾Í²»ÓÃ¸²¸ÇÕû¸öÎÄ¼þ¡£È»ºóÐÞ¸Äincludes\modules\payment\wxpay.php´ó¸ÅµÚ168ÐÐ  @$openid=$_COOKIE['sopenid']; ¸Ä³ÉÄãµÃµ½µÄopenid.
-	ÐèÒªÔÚ¹«ÖÚºÅºóÌ¨Ìí¼ÓÖ§¸¶ÈËÔ±²âÊÔ°×Ãûµ¥¡£Âú×ãÒÔÉÏÁ½¸öÌõ¼þ²Å¿ÉÒÔ·¢ÆðÖ§¸¶£¬Ö§¸¶³É¹¦ºówxpay\demo\notify_url.php »á½ÓÊÜµ½Í¨Öª£¬²¢¸Ä±ä¶©µ¥×´Ì¬¡£¡£
-
-	Ä¿Ç°Ö§³ÖµÄÊÇ×Ô¶¯»ñÈ¡openid £¬Ã¿´ÎÇëÇó
+	ç›®å‰æ”¯æŒçš„æ˜¯è‡ªåŠ¨èŽ·å–openid ï¼Œæ¯æ¬¡è¯·æ±‚ï¼ˆè‡ªè¡Œä¼˜åŒ–mysqlä¿å­˜openidï¼ŒèŠ‚çº¦èµ„æºï¼‰
