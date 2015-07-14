@@ -757,9 +757,9 @@ class NativeLink_pub  extends Common_util_pub
 	var $parameters;//静态链接参数
 	var $url;//静态链接
 
-	function __construct() 
+	function __construct($payment=array()) 
 	{
-		parent::__construct();
+		parent::__construct($payment);
 	}
 	
 	/**
@@ -780,8 +780,9 @@ class NativeLink_pub  extends Common_util_pub
 			if($this->parameters["product_id"] == null) 
 			{
 				throw new SDKRuntimeException("缺少Native支付二维码链接必填参数product_id！"."<br>");
-			}			
+			}
 		   	$this->parameters["appid"] = $this->wxpay_app_id;//公众账号ID
+		   	
 		   	$this->parameters["mch_id"] = $this->wxpay_mchid;//商户号
 		   	$time_stamp = time();
 		   	$this->parameters["time_stamp"] = "$time_stamp";//时间戳
@@ -818,9 +819,9 @@ class JsApi_pub extends Common_util_pub
 	var $prepay_id;//使用统一支付接口得到的预支付id
 	var $curl_timeout;//curl超时时间
 
-	function __construct() 
+	function __construct($payment) 
 	{
-		parent::__construct();
+		parent::__construct($payment);
 		//设置curl超时时间
 		$this->curl_timeout = $this->curltimeout;
 	}

@@ -37,7 +37,7 @@ if (isset ( $set_modules ) && $set_modules == TRUE) {
 	$modules [$i] ['is_online'] = '1';
 	
 	/* 作者 */
-	$modules [$i] ['author'] = 'Leon';
+	$modules [$i] ['author'] = 'DK';
 	
 	/* 网址 */
 	$modules [$i] ['website'] = 'http://wx.qq.com';
@@ -89,15 +89,14 @@ class WxPayConf_pub {
 	public $notifyurl;
 	public $successurl;
 	public $curltimeout;
-	function __construct() {
-		$payment = get_payment ( 'wxpay' );
+	function __construct($payment) {
 		if (isset ( $payment )) {
 			$this->wxpay_app_id = $payment ['wxpay_app_id'];
 			$this->wxpay_app_secret = $payment ['wxpay_app_secret'];
 			$this->wxpay_mchid = $payment ['wxpay_mchid'];
 			$this->wxpay_key = $payment ['wxpay_key'];
-			$this->notifyurl = $payment ['notifyurl'];
-			$this->successurl = $payment ['successurl'];
+			$this->notifyurl = $payment ['notifyurl']==''?'http://'.$_SERVER["HTTP_HOST"].'/respond.php':$payment ['notifyurl'];
+			$this->successurl = $payment ['successurl']==''?'http://'.$_SERVER["HTTP_HOST"].'/respond.php':$payment ['successurl'];
 		}
 		// var_dump($this->wxpay_app_id);
 	}
@@ -114,26 +113,6 @@ include_once (ROOT_PATH . "wxpay/WxPayPubHelper.php");
  * 类
  */
 class wxpay {
-	public $wxpay_app_id = '';
-	public $wxpay_app_secret = '';
-	public $wxpay_mchid = '';
-	public $wxpay_key = '';
-	public $wxpay_paySignKey = '';
-	public $background_notify_url = ''; // /后台支付成功通知url，需要给微信返回success
-	public $pay_success_url = 'http://{$_SERVER["HTTP_HOST"]}/wxpay/payfeedback/index.php'; // /支付成功后前台展示给用户的地址
-	private $_redis = null;
-	function __construct() {
-		$payment = get_payment ( 'wxpay' );
-		if (isset ( $payment )) {
-			$this->wxpay_app_id = $payment ['wxpay_app_id'];
-			$this->wxpay_app_secret = $payment ['wxpay_app_secret'];
-			$this->wxpay_mchid = $payment ['wxpay_mchid'];
-			$this->wxpay_key = $payment ['wxpay_key'];
-			$this->wxpay_paySignKey = $payment ['wxpay_paySignKey'];
-			$this->background_notify_url = 'http://'.$_SERVER["HTTP_HOST"].'/respond.php';
-			$this->pay_success_url = 'http://'.$_SERVER["HTTP_HOST"].'/respond.php';
-		}
-	}
 	
 	/**
 	 * 生成支付代码
@@ -145,15 +124,15 @@ class wxpay {
 	 */
 	function get_code($order, $payment) 
 	{
-		$conf = new WxPayConf_pub ();
+		$conf = new WxPayConf_pub ($payment);
 		//微信浏览器的JSAPI支付\
 		if (strpos ( $_SERVER ['HTTP_USER_AGENT'], "MicroMessenger" )) 
 		{
-			$tools = new JsApi_pub();
+			$tools = new JsApi_pub($payment);
 			$openid = $tools->GetOpenid();
 			$unifiedOrder = new UnifiedOrder_pub ();
 			$returnrul = $conf->successurl;
-			$unifiedOrder->setParameter ( "appid", "$openid" ); // appid
+			$unifiedOrder->setParameter ( "appid", $conf->wxpay_app_id ); // appid
 			$unifiedOrder->setParameter ( "openid", "$openid" ); // openid
 			$unifiedOrder->setParameter ( "body", $order ['order_sn'] ); // 商品描述
 			$timeStamp = time ();
@@ -183,7 +162,7 @@ class wxpay {
 		//扫码支付
 		else 
 		{
-			$native = new NativeLink_pub();
+			$native = new NativeLink_pub($payment);
 			//var_dump($order);die();
 			$native->setParameter ( "body", $order ['order_sn'] ); // 商品描述
 			$timeStamp = time ();
@@ -191,7 +170,7 @@ class wxpay {
 			$native->setParameter ( "appid", $conf->wxpay_app_id ); // openid
 			$native->setParameter ( "out_trade_no", $order ['order_sn'] ); // 商户订单号
 			$native->setParameter ( "total_fee", intval ( $order ['order_amount'] * 100 ) ); // 总金额
-			$native->setParameter ( "notify_url", $this->background_notify_url); // 通知地址
+			$native->setParameter ( "notify_url", $conf->notifyurl); // 通知地址
 			$native->setParameter ( "trade_type", "NATIVE" ); // 交易类型
 			$native->setParameter("product_id",$order['order_id']);
 			$url=$native->getUrl();
